@@ -13,3 +13,12 @@ type CreateUserResponse struct {
 	Email    string `json:"email"`
 	Age      int    `json:"age"`
 }
+
+type LoginUserRequest struct {
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
+}
+
+type LoginUserResponse struct {
+	Token string `json:"token"`
+}

@@ -20,6 +20,7 @@ func Routes() {
 
 	{
 		userRouter.POST("/register", userHandler.Register)
+		userRouter.POST("/login", userHandler.Login)
 	}
 
 	r.Run()

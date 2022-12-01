@@ -7,7 +7,8 @@ import (
 )
 
 type UserRepository interface {
-	Create(entity.User) (entity.User, error)
+	Create(user entity.User) (entity.User, error)
+	FindUserByEmail(user entity.User) (entity.User, error)
 }
 
 type UserRepositoryImpl struct {
@@ -20,5 +21,11 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *UserRepositoryImpl) Create(user entity.User) (entity.User, error) {
 	err := r.DB.Create(&user).Error
+	return user, err
+}
+
+func (r *UserRepositoryImpl) FindUserByEmail(user entity.User) (entity.User, error) {
+	err := r.DB.Model(&user).Where("email = ?", user.Email).First(&user).Error
+
 	return user, err
 }

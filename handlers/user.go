@@ -13,6 +13,7 @@ import (
 
 type UserHandler interface {
 	Register(ctx *gin.Context)
+	Login(ctx *gin.Context)
 }
 
 type UserHandlerImpl struct {
@@ -46,4 +47,32 @@ func (h *UserHandlerImpl) Register(ctx *gin.Context) {
 
 	responses.ConvertUserStatusResponse(ctx, http.StatusCreated, "Success Register User", userResp)
 
+}
+
+func (h *UserHandlerImpl) Login(ctx *gin.Context) {
+	var LoginInput web.LoginUserRequest
+	contentType := helpers.GetContentType(ctx)
+
+	if contentType == appJSON {
+		ctx.ShouldBindJSON(&LoginInput)
+	} else {
+		ctx.ShouldBind(&LoginInput)
+	}
+
+	user, err := h.UserService.Login(LoginInput)
+
+	if err != nil {
+		exceptions.Errors(ctx, http.StatusNotFound, "User Not Found", err.Error())
+		return
+	}
+
+	validPass := helpers.ComparePass([]byte(user.Password), []byte(LoginInput.Password))
+	if !validPass {
+		exceptions.Errors(ctx, http.StatusUnauthorized, "Password Failed", "Unauthenthicated")
+		return
+	}
+
+	genToken := helpers.GenerateToken(user.ID, user.Email)
+
+	responses.ConvertUserStatusResponse(ctx, http.StatusOK, "Login Success", genToken)
 }

@@ -13,3 +13,9 @@ func ConvertCreateUserResponse(user entity.User) web.CreateUserResponse {
 		Age:      user.Age,
 	}
 }
+
+func ConvertLoginUserResponse(token string) web.LoginUserResponse {
+	return web.LoginUserResponse{
+		Token: token,
+	}
+}
