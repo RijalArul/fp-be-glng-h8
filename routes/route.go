@@ -3,6 +3,7 @@ package routes
 import (
 	"fp-be-glng-h8/configs"
 	"fp-be-glng-h8/handlers"
+	"fp-be-glng-h8/middlewares"
 	"fp-be-glng-h8/repositories"
 	"fp-be-glng-h8/services"
 
@@ -21,6 +22,9 @@ func Routes() {
 	{
 		userRouter.POST("/register", userHandler.Register)
 		userRouter.POST("/login", userHandler.Login)
+		userRouter.Use(middlewares.Authenthication())
+		userRouter.GET("/profile", userHandler.Profile)
+
 	}
 
 	r.Run()

@@ -8,12 +8,14 @@ import (
 	"fp-be-glng-h8/services"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
+	Profile(ctx *gin.Context)
 }
 
 type UserHandlerImpl struct {
@@ -75,4 +77,18 @@ func (h *UserHandlerImpl) Login(ctx *gin.Context) {
 	genToken := helpers.GenerateToken(user.ID, user.Email)
 
 	responses.ConvertUserStatusResponse(ctx, http.StatusOK, "Login Success", genToken)
+}
+
+func (h *UserHandlerImpl) Profile(ctx *gin.Context) {
+	userData := ctx.MustGet("userData").(jwt.MapClaims)
+	userId := uint(userData["id"].(float64))
+	user, err := h.UserService.Profile(userId)
+
+	if err != nil {
+		exceptions.Errors(ctx, http.StatusNotFound, "User Not Found", err.Error())
+		return
+	}
+
+	responses.ConvertUserStatusResponse(ctx, http.StatusOK, "Success found user", user)
+
 }

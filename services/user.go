@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	Register(registerInput web.CreateUserRequest) (web.CreateUserResponse, error)
 	Login(loginInput web.LoginUserRequest) (entity.User, error)
+	Profile(userId uint) (web.CreateUserResponse, error)
 }
 
 type UserServiceImpl struct {
@@ -41,4 +42,10 @@ func (s *UserServiceImpl) Login(loginInput web.LoginUserRequest) (entity.User, e
 	}
 	user, err := s.UserRepository.FindUserByEmail(inputUser)
 	return user, err
+}
+
+func (s *UserServiceImpl) Profile(userId uint) (web.CreateUserResponse, error) {
+	user, err := s.UserRepository.FindUserByID(userId)
+	userResp := responses.ConvertCreateUserResponse(user)
+	return userResp, err
 }
