@@ -7,6 +7,7 @@ import (
 	"fp-be-glng-h8/responses"
 	"fp-be-glng-h8/services"
 	"net/http"
+	"regexp"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,8 @@ type UserHandler interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	Profile(ctx *gin.Context)
+	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
 type UserHandlerImpl struct {
@@ -90,5 +93,50 @@ func (h *UserHandlerImpl) Profile(ctx *gin.Context) {
 	}
 
 	responses.ConvertUserStatusResponse(ctx, http.StatusOK, "Success found user", user)
+}
+
+func (h *UserHandlerImpl) UpdateUser(ctx *gin.Context) {
+	var updateInput web.UpdateUserRequest
+	contentType := helpers.GetContentType(ctx)
+	if contentType == appJSON {
+		ctx.ShouldBindJSON(&updateInput)
+	} else {
+		ctx.ShouldBind(&updateInput)
+	}
+
+	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+
+	if len(updateInput.Email) > 0 {
+		if emailRegex.MatchString(updateInput.Email) == false {
+			exceptions.Errors(ctx, http.StatusBadRequest, "Failed Update User", "Invalid Email Format")
+			return
+		}
+	}
+
+	userData := ctx.MustGet("userData").(jwt.MapClaims)
+	userId := uint(userData["id"].(float64))
+
+	updateUser, err := h.UserService.Update(updateInput, userId)
+
+	if err != nil {
+		exceptions.Errors(ctx, http.StatusBadRequest, "Failed Update User", err.Error())
+		return
+	}
+
+	responses.ConvertUserStatusResponse(ctx, http.StatusOK, "Success Updated User", updateUser)
+
+}
+
+func (h *UserHandlerImpl) DeleteUser(ctx *gin.Context) {
+	userData := ctx.MustGet("userData").(jwt.MapClaims)
+	userId := uint(userData["id"].(float64))
+
+	err := h.UserService.DeleteUser(userId)
+
+	if err != nil {
+		exceptions.Errors(ctx, http.StatusNotFound, "Failed Delete User", err.Error())
+	}
+
+	responses.ConvertUserStatusResponse(ctx, http.StatusAccepted, "Success Delete User", "Success Delete User")
 
 }

@@ -11,6 +11,8 @@ type UserService interface {
 	Register(registerInput web.CreateUserRequest) (web.CreateUserResponse, error)
 	Login(loginInput web.LoginUserRequest) (entity.User, error)
 	Profile(userId uint) (web.CreateUserResponse, error)
+	Update(updateInput web.UpdateUserRequest, userId uint) (web.UpdateUserResponse, error)
+	DeleteUser(userId uint) error
 }
 
 type UserServiceImpl struct {
@@ -48,4 +50,20 @@ func (s *UserServiceImpl) Profile(userId uint) (web.CreateUserResponse, error) {
 	user, err := s.UserRepository.FindUserByID(userId)
 	userResp := responses.ConvertCreateUserResponse(user)
 	return userResp, err
+}
+
+func (s *UserServiceImpl) Update(updateInput web.UpdateUserRequest, userId uint) (web.UpdateUserResponse, error) {
+	user := entity.User{
+		Username: updateInput.Username,
+		Email:    updateInput.Email,
+	}
+
+	updateUser, err := s.UserRepository.UpdateUser(user, userId)
+	userResp := responses.ConvertUpdateUserResponse(updateUser)
+	return userResp, err
+}
+
+func (s *UserServiceImpl) DeleteUser(userId uint) error {
+	err := s.UserRepository.DeleteUser(userId)
+	return err
 }

@@ -19,3 +19,13 @@ func ConvertLoginUserResponse(token string) web.LoginUserResponse {
 		Token: token,
 	}
 }
+
+func ConvertUpdateUserResponse(user entity.User) web.UpdateUserResponse {
+	return web.UpdateUserResponse{
+		Id:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Age:       user.Age,
+		UpdatedAt: *user.UpdatedAt,
+	}
+}

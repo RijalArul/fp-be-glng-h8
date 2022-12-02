@@ -1,5 +1,7 @@
 package web
 
+import "time"
+
 type CreateUserRequest struct {
 	Username string `json:"username" form:"username"`
 	Email    string `json:"email" form:"email"`
@@ -21,4 +23,17 @@ type LoginUserRequest struct {
 
 type LoginUserResponse struct {
 	Token string `json:"token"`
+}
+
+type UpdateUserRequest struct {
+	Username string `json:"username" form:"username"`
+	Email    string `json:"email" form:"email"`
+}
+
+type UpdateUserResponse struct {
+	Id        uint      `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Age       int       `json:"age"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
