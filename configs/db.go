@@ -25,9 +25,7 @@ func StartDB() {
 		panic(err)
 	}
 
-	DB.AutoMigrate(entity.User{})
-
-	// DB.AutoMigrate(models.User{}, models.Photo{}, models.Comment{})
+	DB.AutoMigrate(entity.User{}, entity.Photo{})
 
 }
 
